@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "ddg-web-search": {
+      "version": "1.0.0",
+      "installedAt": 1772747944493
+    },
+    "self-improving-agent": {
+      "version": "3.0.1",
+      "installedAt": 1773347222042
+    },
+    "openai-whisper": {
+      "version": "1.0.0",
+      "installedAt": 1773348722751
+    }
+  }
+}

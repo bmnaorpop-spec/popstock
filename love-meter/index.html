@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Meter ❤️</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Love Meter</h1>
+        <p class="subtitle">כמה את אוהבת את ברק היום?</p>
+        
+        <div class="meter-section">
+            <span id="score-display">5</span>
+            <input type="range" min="1" max="10" value="5" class="slider" id="love-slider">
+            <div class="emoji-display" id="emoji-heart">❤️</div>
+        </div>
+
+        <div class="message-section">
+            <textarea id="daily-message" placeholder="כתבי לו משהו קטן... (אופציונלי)"></textarea>
+        </div>
+
+        <button id="send-btn">שלחי אהבה 🚀</button>
+        
+        <div id="status-message" class="hidden">ההודעה נשלחה באהבה! 🥰</div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

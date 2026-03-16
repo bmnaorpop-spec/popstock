@@ -1,0 +1,2 @@
+# Every day at 08:00 UTC
+0 8 * * * python3 /home/pop/.openclaw/workspace/bounty_scanner.py >> /home/pop/.openclaw/workspace/bounty_scan.log 2>&1

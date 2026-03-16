@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Popstock Terminal</title>
+    <style>
+        body { background: #0a0e17; color: #00c9a7; font-family: monospace; padding: 20px; }
+        input { background: #111927; border: 1px solid #00c9a7; color: white; padding: 10px; }
+        button { background: #00c9a7; color: black; border: none; padding: 10px; cursor: pointer; }
+        pre { background: #0d1421; padding: 20px; border: 1px solid #333; }
+    </style>
+</head>
+<body>
+    <h2>Popstock Trading Terminal</h2>
+    <form method="POST">
+        <input type="text" name="ticker" placeholder="Enter Ticker (e.g. BTC-USD)" required>
+        <button type="submit">Analyze</button>
+    </form>
+    {% if result %}
+        <pre>{{ result }}</pre>
+    {% endif %}
+</body>
+</html>
