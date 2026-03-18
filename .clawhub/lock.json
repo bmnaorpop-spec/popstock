@@ -12,6 +12,10 @@
     "openai-whisper": {
       "version": "1.0.0",
       "installedAt": 1773348722751
+    },
+    "self-improving": {
+      "version": "1.2.16",
+      "installedAt": 1773814146937
     }
   }
 }

@@ -1,11 +1,4 @@
-# LASR Entry Point Alert Task (Shardi Strategy)
-# Checking every hour if price is near EMA21
-# Price: around $62.60
-# EMA21 Target: ~$59.51
-# Target symbol: LASR
-# User: Barak (telegram:923217579)
+# Monitoring Tasks
 
-# Bounty Scanner Check
-# Checking daily for Superteam Earn opportunities.
-# Target: Low-barrier, high-probability bounties ($100-$500).
-# Log: /home/pop/.openclaw/workspace/bounty_scan.log
+- **SWRM Alert:** Monitor SWRM price every 30 minutes during US Market Hours (09:30-16:00 ET). If price < $30.00, send immediate notification to user.
+- **Status:** Active (Valid for the next 7 days).

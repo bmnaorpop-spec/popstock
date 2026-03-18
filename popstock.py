@@ -2,6 +2,7 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 import argparse
+from scipy.signal import argrelextrema
 
 def get_data(ticker):
     data = yf.download(ticker, period="1y", interval="1d")
@@ -12,63 +13,62 @@ def calculate_indicators(data, ticker):
     high = data['High'][ticker]
     low = data['Low'][ticker]
     
-    # EMA 21
-    ema21_series = close.ewm(span=21, adjust=False).mean()
-    # SMA 150
-    sma150_series = close.rolling(window=150).mean()
+    # EMA 21 & SMA 150
+    ema21 = float(close.ewm(span=21, adjust=False).mean().iloc[-1])
+    sma150 = float(close.rolling(window=150).mean().iloc[-1])
     
-    current_price = close.iloc[-1]
-    ema21 = ema21_series.iloc[-1]
-    sma150 = sma150_series.iloc[-1]
+    # RSI 14
+    delta = close.diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+    rs = gain / loss
+    rsi = float((100 - (100 / (1 + rs))).iloc[-1])
     
-    # Simple Fibonacci approximation
-    h = high.max()
-    l = low.min()
-    diff = h - l
-    fib_0618 = l + (0.618 * diff)
-    fib_1618 = h + (0.618 * diff)
+    # Market Structure
+    recent = data.tail(60)
+    highs = recent['High'][ticker].values
+    lows = recent['Low'][ticker].values
+    
+    peaks = highs[argrelextrema(highs, np.greater, order=5)[0]]
+    valleys = lows[argrelextrema(lows, np.less, order=5)[0]]
+    
+    price = float(close.iloc[-1])
+    
+    res = float(peaks[peaks > price].min()) if len(peaks[peaks > price]) > 0 else float(high.max())
+    sup = float(valleys[valleys < price].max()) if len(valleys[valleys < price]) > 0 else float(low.min())
+    
+    # ATR (Volatility)
+    prev_close = close.shift(1)
+    tr = pd.concat([high-low, (high-prev_close).abs(), (low-prev_close).abs()], axis=1).max(axis=1)
+    atr = float(tr.rolling(window=14).mean().iloc[-1])
     
     return {
-        "price": current_price,
-        "ema21": ema21,
-        "sma150": sma150,
-        "fib_sup": fib_0618,
-        "fib_res": fib_1618
+        "price": price, "ema21": ema21, "sma150": sma150, "rsi": rsi,
+        "sup": sup, "res": res, "stop": price - (2 * atr), "target": price + (4 * atr)
     }
 
 def print_card(ticker, indicators):
-    price = indicators['price']
-    ema21 = indicators['ema21']
-    sma150 = indicators['sma150']
-    sup = indicators['fib_sup']
-    res = indicators['fib_res']
+    price, ema21, sma150 = indicators['price'], indicators['ema21'], indicators['sma150']
+    rsi, sup, res = indicators['rsi'], indicators['sup'], indicators['res']
+    stop, tgt = indicators['stop'], indicators['target']
     
-    # Dynamic calculations
-    tgt_percent = ((res - price) / price) * 100
-    stop_price = sup * 0.98 
-    reliability = 50 + min((abs(price - ema21) / price) * 100, 20)
-    
-    # Determine type based on simple logic
-    alert_type = "TYPE 2"
-    pattern = "Bullish Rebound"
-    if price < ema21:
-        alert_type = "TYPE 4"
-        pattern = "Bearish Breakdown"
-    
+    recommendation = "HOLD"
+    if price > ema21 and price > sma150 and rsi < 65: recommendation = "BUY"
+    elif price < ema21 and price < sma150 and rsi > 35: recommendation = "SELL"
+    elif rsi > 70: recommendation = "HOLD (Overbought)"
+    elif rsi < 30: recommendation = "HOLD (Oversold)"
+        
     print("--------------------------------------------")
-    print(f"PATTERN BREAKOUTS: {ticker}")
+    print(f"PATTERN ALERT: {ticker}")
     print("--------------------------------------------")
-    print(f"{pattern.ljust(20)} [{alert_type}]")
-    print("\nMetrics:")
-    print(f"- Price: ${price:,.2f}")
+    print(f"- Price: ${price:,.2f} | RSI: {rsi:.1f}")
     print(f"- EMA21: ${ema21:,.2f} | SMA150: ${sma150:,.2f}")
-    print("\nLevels:")
-    print(f"- SUP (Fib 0.618): ${sup:,.2f}")
-    print(f"- RES (Fib 1.618): ${res:,.2f}")
+    print(f"- SUP: ${sup:,.2f} | RES: ${res:,.2f}")
     print("--------------------------------------------")
-    print(f"Reliability: {reliability:.1f}%  TGT: +{tgt_percent:.1f}%  STOP: ${stop_price:,.2f}")
+    print(f"TGT: ${tgt:,.2f} | STOP: ${stop:,.2f}")
+    print(f"Decision: {recommendation}")
     print("--------------------------------------------")
-    print("Price holding between SUP & RES levels")
+    print("Strategy: Market Structure + RSI Risk Control")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

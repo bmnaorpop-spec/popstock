@@ -15,7 +15,7 @@
 - **Project: Shardi-Eye (2026-03-09):** A stock and crypto technical analysis tool inspired by @shardiB2. Uses `yfinance` and `pandas` to generate AI-powered market reports.
 - **Alerts:** 
   - Tracking LASR for Barak using Shardi strategy. Target entry around EMA21 (~$59.20). Check via heartbeats.
-  - **SWMR IPO (2026-03-13):** Swarmer, Inc. IPO next week (March 16). AI-driven drone swarms (Trident OS). Price range $4-$6. Ticker: SWMR.
+  - **SWMR IPO (2026-03-17):** Swarmer, Inc. commenced trading on Nasdaq on March 17, 2026. (Updated 2026-03-18)
 - **Love Meter (2026-03-06):** A romantic web app for Barak's wife. Managed by PM2 (`love-meter-server` and `love-meter-tunnel`). URL: `https://0d3b09f5f0341a.lhr.life`. Auto-starts on boot.
 - **WaTgBridge + THERAPY (2026-03-14 → 2026-03-15):** WhatsApp-to-Telegram bridge project - **CANCELLED**
   - Reason: Technical limitations with topic creation and complexity of configuration made it an insufficient solution
