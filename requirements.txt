@@ -1,6 +1,7 @@
-flask
+streamlit>=1.40.0
+altair>=5.0.0
 yfinance
 pandas
 numpy
 scipy
-streamlit
+flask
