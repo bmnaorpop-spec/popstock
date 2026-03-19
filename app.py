@@ -2,14 +2,12 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 import numpy as np
+from scipy.signal import argrelextrema
 
 st.set_page_config(page_title="Popstock Watchlist", layout="wide")
 st.markdown("<style>.stApp { background-color: #0a0e17; color: #00c9a7; font-family: monospace; }</style>", unsafe_allow_html=True)
 
 st.title("🦞 Popstock Watchlist")
-
-def render_metric(label, value):
-    return f'<div style="margin: 4px 0;"><span class="metric-label">{label}:</span> <span class="metric-value">{value}</span></div>'
 
 def calculate_metrics(ticker):
     data = yf.download(ticker, period="1y", interval="1d", progress=False)
@@ -52,10 +50,8 @@ if st.button("Refresh Watchlist"):
                 with st.container(border=True):
                     st.subheader(res['Ticker'])
                     st.metric("Price", f"${res['Price']:,.2f}", f"{res['Pct']:.2f}%")
-                    st.markdown(render_metric("RSI", res['RSI']), unsafe_allow_html=True)
-                    st.markdown(render_metric("EMA21", f"${res['EMA21']}"), unsafe_allow_html=True)
-                    st.markdown(render_metric("SMA150", f"${res['SMA150']}"), unsafe_allow_html=True)
-                    st.markdown(render_metric("SUP", f"${res['SUP']}"), unsafe_allow_html=True)
-                    st.markdown(render_metric("RES", f"${res['RES']}"), unsafe_allow_html=True)
+                    st.write(f"**EMA21:** ${res['EMA21']} | **SMA150:** ${res['SMA150']}")
+                    st.write(f"**SUP:** ${res['SUP']} | **RES:** ${res['RES']}")
+                    st.write(f"**RSI:** {res['RSI']}")
                     color = "green" if res['Decision'] == "BUY" else "red" if res['Decision'] == "SELL" else "gray"
                     st.markdown(f"Decision: **<span style='color:{color}'>{res['Decision']}</span>**", unsafe_allow_html=True)
