@@ -5,6 +5,7 @@ import argparse
 from scipy.signal import argrelextrema
 
 def get_data(ticker):
+    # Fetch 1y data to ensure we have enough for SMA and history
     data = yf.download(ticker, period="1y", interval="1d")
     return data
 
@@ -33,22 +34,27 @@ def calculate_indicators(data, ticker):
     valleys = lows[argrelextrema(lows, np.less, order=5)[0]]
     
     price = float(close.iloc[-1])
+    prev_close = float(close.iloc[-2])
+    pct_change = ((price - prev_close) / prev_close) * 100
     
     res = float(peaks[peaks > price].min()) if len(peaks[peaks > price]) > 0 else float(high.max())
     sup = float(valleys[valleys < price].max()) if len(valleys[valleys < price]) > 0 else float(low.min())
     
-    # ATR (Volatility)
-    prev_close = close.shift(1)
-    tr = pd.concat([high-low, (high-prev_close).abs(), (low-prev_close).abs()], axis=1).max(axis=1)
+    # ATR
+    tr1 = high - low
+    tr2 = (high - close.shift(1)).abs()
+    tr3 = (low - close.shift(1)).abs()
+    tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
     atr = float(tr.rolling(window=14).mean().iloc[-1])
     
     return {
-        "price": price, "ema21": ema21, "sma150": sma150, "rsi": rsi,
+        "price": price, "pct_change": pct_change, "ema21": ema21, "sma150": sma150, "rsi": rsi,
         "sup": sup, "res": res, "stop": price - (2 * atr), "target": price + (4 * atr)
     }
 
 def print_card(ticker, indicators):
-    price, ema21, sma150 = indicators['price'], indicators['ema21'], indicators['sma150']
+    price, pct_change = indicators['price'], indicators['pct_change']
+    ema21, sma150 = indicators['ema21'], indicators['sma150']
     rsi, sup, res = indicators['rsi'], indicators['sup'], indicators['res']
     stop, tgt = indicators['stop'], indicators['target']
     
@@ -61,7 +67,7 @@ def print_card(ticker, indicators):
     print("--------------------------------------------")
     print(f"PATTERN ALERT: {ticker}")
     print("--------------------------------------------")
-    print(f"- Price: ${price:,.2f} | RSI: {rsi:.1f}")
+    print(f"- Price: ${price:,.2f} ({pct_change:+.2f}%) | RSI: {rsi:.1f}")
     print(f"- EMA21: ${ema21:,.2f} | SMA150: ${sma150:,.2f}")
     print(f"- SUP: ${sup:,.2f} | RES: ${res:,.2f}")
     print("--------------------------------------------")

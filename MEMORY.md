@@ -9,7 +9,7 @@
 - **Model:** 
   - Switched from Gemini to Claude Haiku (2026-03-14) due to Gemini token limit issues.
   - Upgraded to Claude Sonnet 4 (2026-03-14 18:05 UTC) for better handling of complex configs like WaTgBridge.
-- **RTL Hebrew:** All Hebrew replies should be wrapped with Right-to-Left marks (U+200F at start and end) for proper Telegram alignment (updated 2026-03-14).
+- **RTL Alignment Rule:** Always wrap ALL Hebrew messages in U+200F (Right-to-Left Mark) at the start and end. NO EXCEPTIONS.
 
 ## Major Projects & Decisions
 - **Project: Shardi-Eye (2026-03-09):** A stock and crypto technical analysis tool inspired by @shardiB2. Uses `yfinance` and `pandas` to generate AI-powered market reports.
