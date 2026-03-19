@@ -2,7 +2,6 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 import numpy as np
-from scipy.signal import argrelextrema
 
 st.set_page_config(page_title="Popstock Watchlist", layout="wide")
 st.markdown("<style>.stApp { background-color: #0a0e17; color: #00c9a7; font-family: monospace; }</style>", unsafe_allow_html=True)
@@ -50,8 +49,10 @@ if st.button("Refresh Watchlist"):
                 with st.container(border=True):
                     st.subheader(res['Ticker'])
                     st.metric("Price", f"${res['Price']:,.2f}", f"{res['Pct']:.2f}%")
-                    st.write(f"**EMA21:** ${res['EMA21']} | **SMA150:** ${res['SMA150']}")
-                    st.write(f"**SUP:** ${res['SUP']} | **RES:** ${res['RES']}")
-                    st.write(f"**RSI:** {res['RSI']}")
+                    # כאן התיקון: שימוש ב-st.markdown אחיד לכל השורות
+                    st.markdown(f"**RSI:** {res['RSI']} | **EMA21:** ${res['EMA21']}")
+                    st.markdown(f"**SMA150:** ${res['SMA150']} | **SUP:** ${res['SUP']}")
+                    st.markdown(f"**RES:** ${res['RES']}")
+                    
                     color = "green" if res['Decision'] == "BUY" else "red" if res['Decision'] == "SELL" else "gray"
                     st.markdown(f"Decision: **<span style='color:{color}'>{res['Decision']}</span>**", unsafe_allow_html=True)
