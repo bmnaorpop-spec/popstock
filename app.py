@@ -8,6 +8,9 @@ st.markdown("<style>.stApp { background-color: #0a0e17; color: #00c9a7; font-fam
 
 st.title("🦞 Popstock Watchlist")
 
+if 'watchlist' not in st.session_state:
+    st.session_state['watchlist'] = "BTC-USD, MU, SWRM, AXTI, WDC, MRVL"
+
 def calculate_metrics(ticker):
     data = yf.download(ticker, period="1y", interval="1d", progress=False)
     if data.empty: return None
@@ -28,8 +31,8 @@ def calculate_metrics(ticker):
         "SMA150": round(sma150, 2)
     }
 
-tickers_input = st.text_input("Watchlist", "BTC-USD, MU, SWRM, AXTI, WDC, MRVL").upper()
-tickers = [t.strip() for t in tickers_input.split(",") if t.strip()]
+st.session_state['watchlist'] = st.text_input("Watchlist", value=st.session_state['watchlist'], key="watchlist_input").upper()
+tickers = [t.strip() for t in st.session_state['watchlist'].split(",") if t.strip()]
 
 if st.button("Refresh Analysis"):
     cols = st.columns(3)
