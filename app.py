@@ -5,7 +5,12 @@ import numpy as np
 
 st.set_page_config(page_title="Popstock Watchlist", layout="wide")
 st.markdown("<style>.stApp { background-color: #0a0e17; color: #00c9a7; font-family: monospace; }</style>", unsafe_allow_html=True)
+
 st.title("🦞 Popstock Watchlist")
+
+# אתחול זיכרון במידת הצורך
+if 'watchlist_text' not in st.session_state:
+    st.session_state['watchlist_text'] = "BTC-USD, MU, SWRM, AXTI, WDC, MRVL"
 
 def calculate_metrics(ticker):
     data = yf.download(ticker, period="1y", interval="1d", progress=False)
@@ -27,8 +32,8 @@ def calculate_metrics(ticker):
         "SMA150": round(sma150, 2)
     }
 
-# בלי session_state מורכב, פשוט input פשוט
-tickers_input = st.text_input("Watchlist", "BTC-USD, MU, SWRM, AXTI, WDC, MRVL").upper()
+# המפתח (key) הוא מה ששומר על הזיכרון
+tickers_input = st.text_input("Watchlist", key="watchlist_text").upper()
 tickers = [t.strip() for t in tickers_input.split(",") if t.strip()]
 
 if st.button("Refresh Analysis"):
