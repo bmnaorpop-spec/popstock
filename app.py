@@ -8,15 +8,19 @@ st.markdown("<style>.stApp { background-color: #0a0e17; color: #00c9a7; font-fam
 
 st.title("🦞 Popstock Watchlist")
 
-# אתחול זיכרון - שים לב ששינינו את שם המשתנה כדי להפריד אותו מהווידג'ט עצמו
-if 'saved_tickers' not in st.session_state:
-    st.session_state['saved_tickers'] = "BTC-USD, MU, SWRM, AXTI, WDC, MRVL"
+# פונקציה לטעינה ושמירה של הרשימה לקובץ
+def load_watchlist():
+    try:
+        with open("watchlist.txt", "r") as f: return f.read()
+    except: return "BTC-USD, MU, SWRM, AXTI, WDC, MRVL"
+
+def save_watchlist(tickers):
+    with open("watchlist.txt", "w") as f: f.write(tickers)
 
 def calculate_metrics(ticker):
     data = yf.download(ticker, period="1y", interval="1d", progress=False)
     if data.empty: return None
-    # התאמת פורמט הנתונים בצורה בטוחה
-    close = data['Close'][ticker] if isinstance(data['Close'], pd.DataFrame) else data['Close']
+    close = data['Close'][ticker]
     price = float(close.iloc[-1])
     prev_close = float(close.iloc[-2])
     ema21 = float(close.ewm(span=21, adjust=False).mean().iloc[-1])
@@ -33,16 +37,11 @@ def calculate_metrics(ticker):
         "SMA150": round(sma150, 2)
     }
 
-# עוטפים את ה-Input והכפתור בתוך Form
-with st.form("watchlist_form"):
-    tickers_input = st.text_input("Watchlist", value=st.session_state['saved_tickers']).upper()
-    submit_button = st.form_submit_button("Refresh Analysis")
+tickers_input = st.text_input("Watchlist", value=load_watchlist()).upper()
+save_watchlist(tickers_input) # שמירה בכל שינוי
+tickers = [t.strip() for t in tickers_input.split(",") if t.strip()]
 
-if submit_button:
-    # מעדכנים את הזיכרון *רק* כשהמשתמש לחץ על כפתור הרענון
-    st.session_state['saved_tickers'] = tickers_input
-    
-    tickers = [t.strip() for t in tickers_input.split(",") if t.strip()]
+if st.button("Refresh Analysis"):
     cols = st.columns(3)
     results = [calculate_metrics(t) for t in tickers]
     
