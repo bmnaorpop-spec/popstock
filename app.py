@@ -8,9 +8,8 @@ st.markdown("<style>.stApp { background-color: #0a0e17; color: #00c9a7; font-fam
 
 st.title("🦞 Popstock Watchlist")
 
-# אתחול זיכרון במידת הצורך
-if 'watchlist_text' not in st.session_state:
-    st.session_state['watchlist_text'] = "BTC-USD, MU, SWRM, AXTI, WDC, MRVL"
+if 'watchlist' not in st.session_state:
+    st.session_state['watchlist'] = "BTC-USD, MU, SWRM, AXTI, WDC, MRVL"
 
 def calculate_metrics(ticker):
     data = yf.download(ticker, period="1y", interval="1d", progress=False)
@@ -32,8 +31,7 @@ def calculate_metrics(ticker):
         "SMA150": round(sma150, 2)
     }
 
-# המפתח (key) הוא מה ששומר על הזיכרון
-tickers_input = st.text_input("Watchlist", key="watchlist_text").upper()
+tickers_input = st.text_input("Watchlist", key="watchlist").upper()
 tickers = [t.strip() for t in tickers_input.split(",") if t.strip()]
 
 if st.button("Refresh Analysis"):
