@@ -8,7 +8,6 @@ st.markdown("<style>.stApp { background-color: #0a0e17; color: #00c9a7; font-fam
 
 st.title("🦞 Popstock Watchlist")
 
-# אתחול זיכרון במידת הצורך
 if 'watchlist' not in st.session_state:
     st.session_state['watchlist'] = "BTC-USD, MU, SWRM, AXTI, WDC, MRVL"
 
@@ -32,8 +31,7 @@ def calculate_metrics(ticker):
         "SMA150": round(sma150, 2)
     }
 
-# שימוש ב-KEY מבטיח יציבות
-tickers_input = st.text_input("Watchlist", value=st.session_state['watchlist'], key="watchlist").upper()
+tickers_input = st.text_input("Watchlist", key="watchlist").upper()
 tickers = [t.strip() for t in tickers_input.split(",") if t.strip()]
 
 if st.button("Refresh Analysis"):
