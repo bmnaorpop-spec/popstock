@@ -6,7 +6,11 @@ import numpy as np
 st.set_page_config(page_title="Popstock Watchlist", layout="wide")
 st.markdown("<style>.stApp { background-color: #0a0e17; color: #00c9a7; font-family: monospace; }</style>", unsafe_allow_html=True)
 
-st.title("🦞 Popstock Watchlist: Correction Hunter")
+st.title("🦞 Popstock Watchlist")
+
+# שימוש ב-Session State כדי לזכור את הרשימה גם אחרי Refresh
+if 'watchlist' not in st.session_state:
+    st.session_state['watchlist'] = "BTC-USD, MU, SWRM, AXTI, WDC, MRVL"
 
 def calculate_metrics(ticker):
     data = yf.download(ticker, period="1y", interval="1d", progress=False)
@@ -18,23 +22,22 @@ def calculate_metrics(ticker):
     sma150 = float(close.rolling(window=150).mean().iloc[-1]) if len(close) > 150 else 0
     rsi = float((100 - (100 / (1 + (close.diff().where(close.diff() > 0, 0).rolling(14).mean() / (-close.diff().where(close.diff() < 0, 0).rolling(14).mean()))))).iloc[-1])
     
-    # Correction Trader Logic
     decision = "HOLD"
-    if price > sma150 and rsi < 50: 
-        decision = "BUY (Correction Entry)"
-    elif rsi > 70: 
-        decision = "SELL (Take Profit)"
-        
+    if price > sma150 and rsi < 50: decision = "BUY (Correction Entry)"
+    elif rsi > 70: decision = "SELL (Take Profit)"
+    
     return {
         "Ticker": ticker, "Price": price, "Pct": ((price-prev_close)/prev_close)*100, 
         "RSI": round(rsi, 1), "Decision": decision, "EMA21": round(ema21, 2),
         "SMA150": round(sma150, 2)
     }
 
-tickers_input = st.text_input("Watchlist", "BTC-USD, MU, SWRM, AXTI, WDC, MRVL").upper()
+# קלט ששומר על המצב
+tickers_input = st.text_input("Watchlist", value=st.session_state['watchlist']).upper()
+st.session_state['watchlist'] = tickers_input
 tickers = [t.strip() for t in tickers_input.split(",")]
 
-if st.button("Refresh Analysis"):
+if st.button("Refresh Watchlist"):
     cols = st.columns(3)
     results = [calculate_metrics(t) for t in tickers]
     
