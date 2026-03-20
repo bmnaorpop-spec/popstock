@@ -8,10 +8,6 @@ st.markdown("<style>.stApp { background-color: #0a0e17; color: #00c9a7; font-fam
 
 st.title("🦞 Popstock Watchlist")
 
-# שימוש ב-Session State כדי לזכור את הרשימה גם אחרי Refresh
-if 'watchlist' not in st.session_state:
-    st.session_state['watchlist'] = "BTC-USD, MU, SWRM, AXTI, WDC, MRVL"
-
 def calculate_metrics(ticker):
     data = yf.download(ticker, period="1y", interval="1d", progress=False)
     if data.empty: return None
@@ -25,19 +21,17 @@ def calculate_metrics(ticker):
     decision = "HOLD"
     if price > sma150 and rsi < 50: decision = "BUY (Correction Entry)"
     elif rsi > 70: decision = "SELL (Take Profit)"
-    
+        
     return {
         "Ticker": ticker, "Price": price, "Pct": ((price-prev_close)/prev_close)*100, 
         "RSI": round(rsi, 1), "Decision": decision, "EMA21": round(ema21, 2),
         "SMA150": round(sma150, 2)
     }
 
-# קלט ששומר על המצב
-tickers_input = st.text_input("Watchlist", value=st.session_state['watchlist']).upper()
-st.session_state['watchlist'] = tickers_input
-tickers = [t.strip() for t in tickers_input.split(",")]
+tickers_input = st.text_input("Watchlist", "BTC-USD, MU, SWRM, AXTI, WDC, MRVL").upper()
+tickers = [t.strip() for t in tickers_input.split(",") if t.strip()]
 
-if st.button("Refresh Watchlist"):
+if st.button("Refresh Analysis"):
     cols = st.columns(3)
     results = [calculate_metrics(t) for t in tickers]
     
