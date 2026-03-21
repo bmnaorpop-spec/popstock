@@ -8,14 +8,9 @@ st.markdown("<style>.stApp { background-color: #0a0e17; color: #00c9a7; font-fam
 
 st.title("🦞 Popstock Watchlist")
 
-# פונקציה לטעינה ושמירה של הרשימה לקובץ
-def load_watchlist():
-    try:
-        with open("watchlist.txt", "r") as f: return f.read()
-    except: return "BTC-USD, MU, SWRM, AXTI, WDC, MRVL"
-
-def save_watchlist(tickers):
-    with open("watchlist.txt", "w") as f: f.write(tickers)
+# אתחול זיכרון - הרשימה החדשה שלך
+if 'watchlist' not in st.session_state:
+    st.session_state['watchlist'] = "EWY, LITE, RKLB, VOYG, TLA, LWLG, ASTS, MOB, KTOS, PLTR"
 
 def calculate_metrics(ticker):
     data = yf.download(ticker, period="1y", interval="1d", progress=False)
@@ -37,8 +32,8 @@ def calculate_metrics(ticker):
         "SMA150": round(sma150, 2)
     }
 
-tickers_input = st.text_input("Watchlist", value=load_watchlist()).upper()
-save_watchlist(tickers_input) # שמירה בכל שינוי
+# המפתח (key) הוא מה ששומר על הזיכרון
+tickers_input = st.text_input("Watchlist", value=st.session_state['watchlist'], key="watchlist_input").upper()
 tickers = [t.strip() for t in tickers_input.split(",") if t.strip()]
 
 if st.button("Refresh Analysis"):
