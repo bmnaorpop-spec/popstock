@@ -1,4 +1,5 @@
 import os
+import time
 import requests
 from dotenv import load_dotenv
 from alpaca.trading.client import TradingClient
@@ -38,10 +39,9 @@ def execute_trade(ticker, decision, price, sup, rsi):
                 time_in_force=TimeInForce.DAY
             )
         else:
-            qty = 1
             order_data = MarketOrderRequest(
                 symbol=ticker,
-                qty=qty,
+                qty=1,
                 side=side,
                 type='market',
                 time_in_force=TimeInForce.DAY
@@ -59,15 +59,15 @@ def execute_trade(ticker, decision, price, sup, rsi):
         print(err_msg)
 
 def run_crypto_engine():
-    # הרשימה המעודכנת
-    pairs = ["BTC/USD", "ETH/USD", "SOL/USD", "LINK/USD", "FET/USD"]
+    # הרשימה המעודכנת בפורמט yfinance (מקף במקום לוכסן)
+    pairs = ["BTC-USD", "ETH-USD", "SOL-USD", "LINK-USD", "FET-USD"]
     print("🦞 Crypto Hunter Active (24/7) ...")
     while True:
         for ticker in pairs:
             metrics = calculate_metrics(ticker, interval="15m")
-            if metrics and "BUY" in metrics['Decision']:
+            if metrics and ("BUY" in metrics['Decision'] or "SELL" in metrics['Decision']):
                 execute_trade(ticker, metrics['Decision'], metrics['Price'], metrics['SUP'], metrics['RSI'])
-                print(f"🦞 Scalping BUY: {ticker}")
+                print(f"🦞 Scalping {metrics['Decision']}: {ticker}")
         time.sleep(900) # סריקה כל 15 דקות
 
 if __name__ == "__main__":
