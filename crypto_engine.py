@@ -1,9 +1,8 @@
 import os
-import time
 import requests
 from dotenv import load_dotenv
 from alpaca.trading.client import TradingClient
-from alpaca.trading.requests import MarketOrderRequest
+from alpaca.trading.requests import MarketOrderRequest, LimitOrderRequest
 from alpaca.trading.enums import OrderSide, TimeInForce
 from popstock import calculate_metrics
 
@@ -22,16 +21,32 @@ def send_telegram(message):
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={message}"
         requests.get(url)
 
-def execute_trade(ticker, decision, price):
+def execute_trade(ticker, decision, price, sup, rsi):
     side = OrderSide.BUY if 'BUY' in decision else OrderSide.SELL
     try:
-        order_data = MarketOrderRequest(
-            symbol=ticker,
-            qty=0.01,
-            side=side,
-            type='market',
-            time_in_force=TimeInForce.GTC
-        )
+        if side == OrderSide.BUY:
+            is_near_sup = abs(price - sup) / price < 0.05
+            limit_price = sup if is_near_sup else price
+            qty = round(5000 / price, 4)
+            
+            order_data = LimitOrderRequest(
+                symbol=ticker,
+                qty=qty,
+                side=side,
+                type='limit',
+                limit_price=limit_price,
+                time_in_force=TimeInForce.DAY
+            )
+        else:
+            qty = 1
+            order_data = MarketOrderRequest(
+                symbol=ticker,
+                qty=qty,
+                side=side,
+                type='market',
+                time_in_force=TimeInForce.DAY
+            )
+            
         client.submit_order(order_data=order_data)
         
         # שליחת התראה מפורטת לטלגרם
@@ -44,13 +59,14 @@ def execute_trade(ticker, decision, price):
         print(err_msg)
 
 def run_crypto_engine():
-    pairs = ["BTC/USD", "ETH/USD", "SOL/USD"]
+    # הרשימה המעודכנת
+    pairs = ["BTC/USD", "ETH/USD", "SOL/USD", "LINK/USD", "FET/USD"]
     print("🦞 Crypto Hunter Active (24/7) ...")
     while True:
         for ticker in pairs:
             metrics = calculate_metrics(ticker, interval="15m")
             if metrics and "BUY" in metrics['Decision']:
-                execute_trade(ticker, metrics['Decision'], metrics['Price'])
+                execute_trade(ticker, metrics['Decision'], metrics['Price'], metrics['SUP'], metrics['RSI'])
                 print(f"🦞 Scalping BUY: {ticker}")
         time.sleep(900) # סריקה כל 15 דקות
 
